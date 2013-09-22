@@ -13,18 +13,19 @@ void game_over()
 	exit(0);
 }
 
-void move(snake_node* player){
+void move(snake_node* player)
+{
     //this contains the array of flags which tell which button has been pressed. It must be cleared before every input.
     clear_keybuf();
     if (key[KEY_LEFT])	 player->dir = left;
     if (key[KEY_RIGHT]) player->dir = right;
     if (key[KEY_DOWN]) player->dir = down;
     if (key[KEY_UP]) player->dir = up;
-    
+
     int tempx = player->x, tempy = player->y;
 
     if (player->dir == left){
-     
+
 	if (player->x > 0)
 	{
         	tempx = player->x - 1;
@@ -32,7 +33,7 @@ void move(snake_node* player){
 	else{ //allow for wrap around
 		game_over();
 	}
-              
+
     } else if (player->dir == right){
 
  	if (player->x < MAP_WIDTH - 1)
@@ -44,7 +45,7 @@ void move(snake_node* player){
 	}
     } else if (player->dir == up){
 	if (player->y > 0)
-	{        
+	{
 		tempy = player->y - 1;
 	}
 	else{
@@ -60,17 +61,17 @@ void move(snake_node* player){
 	else{
 		game_over();
 	}
-    } else { 
+    } else {
 
         exit(0);
-    }    
+    }
 
     if (objMap[tempy][tempx] == apple) //the snake has run into an apple and another node is created
     {
 	score++;
         snake_node* temp = player;
 	while (temp->next != NULL) //the snake is essentially a linked list and we're traversing it
-	{	
+	{
 		temp = temp->next;
 	}
 	int newNodex = temp->x; //when we reach the final node, we store its location with two variables
@@ -89,14 +90,14 @@ void move(snake_node* player){
 	game_over();
     }
     else{
- 	player = move_body(player,tempx,tempy);	
+ 	player = move_body(player,tempx,tempy);
     }
 
-        
+
 
     objMap[tempy][tempx] = snake; //update the object map to the new snake head position
-    
-}    
+
+}
 
 /*
 *  This function recursively moves the snake. It goes all the way to the last node of the snake, changes its coordinates,
@@ -121,7 +122,7 @@ snake_node* move_body(snake_node* player, int tempx, int tempy)
 void generate_new_apple()
 {
 	int randy, randx;
-	
+
 	do{
 		randy = (int)(rand()%24);
 		randx = (int)(rand()%32);
@@ -170,13 +171,13 @@ void draw()
 
 	rectfill ( buffer, TILE_SIZE*j, TILE_SIZE*i, TILE_SIZE*(j+1),TILE_SIZE*(i+1), c);
 	}
-    }  
+    }
 
     //draw the score
     char scoretxt[10];
     sprintf(scoretxt,"score: %d",score);
     textout_ex(buffer, font, scoretxt, TILE_SIZE*(MAP_WIDTH)*3/4, TILE_SIZE, makecol(255,255,255), makecol(0,0,0));
-    
+
     //draw an outline of the game map
     rect( buffer, 0, 0, TILE_SIZE*MAP_WIDTH-1, TILE_SIZE*MAP_HEIGHT-1, makecol( 0, 0, 255));
 
@@ -185,7 +186,7 @@ void draw()
 }
 
 int main(){
-    
+
     //basic info from user about game speed.
     printf("\nSet your game speed (1,2,3): \n");
     scanf("%d",&gamespeed);
@@ -193,15 +194,15 @@ int main(){
 
     allegro_init();
     install_keyboard();
-    
+
     set_color_depth(16); //graphics
-    set_gfx_mode( GFX_AUTODETECT, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, 0, 0);    
-    buffer = create_bitmap( MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE); 
+    set_gfx_mode( GFX_AUTODETECT, MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE, 0, 0);
+    buffer = create_bitmap( MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE);
 
     install_timer();
 
     //lock interrupt variables
-    
+
     LOCK_VARIABLE(counter);
     LOCK_VARIABLE(framerate);
     LOCK_VARIABLE(ticks);
@@ -209,7 +210,7 @@ int main(){
     LOCK_VARIABLE(rested);
     LOCK_FUNCTION(timer1);
     LOCK_FUNCTION(rest1);
-    
+
     install_int(timer1, 1000);
 
     snake_node* player = malloc(sizeof(snake_node));
@@ -241,12 +242,12 @@ int main(){
         //slow the game down
         resting=0;
 
-        //this formula is hacked together. This number is the one which determines how slow the game is. The 
+        //this formula is hacked together. This number is the one which determines how slow the game is. The
         //higher the number the longer we wait. So higher gamespeed means a lower wait.
         rest_callback(100-gamespeed * 30, rest1);
 
-    }    
-    
+    }
+
     return 0;
 
 }
